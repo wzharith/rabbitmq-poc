@@ -1,0 +1,9 @@
+# Ignore FastAPI related files
+__pycache__/
+*.py[cod]
+*.log
+*.sqlite3
+*.env
+*.venv/
+*.egg-info/
+*.pytest_cache/
