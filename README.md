@@ -1,0 +1,2 @@
+# rabbitmq-poc
+RabbitMQ Playground
