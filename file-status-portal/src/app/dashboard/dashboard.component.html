@@ -1,0 +1,22 @@
+<div class="dashboard-container">
+    <h2>File Status Dashboard</h2>
+    <table mat-table [dataSource]="files" class="mat-elevation-z8">
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> File Name </th>
+            <td mat-cell *matCellDef="let file"> {{ file.filename }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <td mat-cell *matCellDef="let file"> {{ file.status }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="result">
+            <th mat-header-cell *matHeaderCellDef> Result </th>
+            <td mat-cell *matCellDef="let file"> {{ file.result || 'N/A' }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>

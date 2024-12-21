@@ -8,3 +8,11 @@ __pycache__/
 *.egg-info/
 *.pytest_cache/
 uploads/
+
+# Ignore the Angular related files
+node_modules/
+dist/
+e2e/
+src/app/environments/environment.ts
+.vscode/
+.angular

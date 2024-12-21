@@ -74,3 +74,21 @@ async def get_status(task_id: str):
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"task_id": task_id, "status": task.status, "result": task.result}
+
+
+@app.get("/files/")
+async def get_all_files():
+    db = SessionLocal()
+    try:
+        tasks = db.query(FileTask).all()
+        return [
+            {
+                "task_id": task.id,
+                "filename": task.filename,
+                "status": task.status,
+                "result": task.result
+            }
+            for task in tasks
+        ]
+    finally:
+        db.close()

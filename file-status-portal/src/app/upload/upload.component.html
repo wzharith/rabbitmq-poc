@@ -1,0 +1,11 @@
+<div class="upload-container">
+    <h2>Upload Files</h2>
+    <input type="file" (change)="onFileSelect($event)" multiple />
+    <button mat-raised-button color="primary" (click)="uploadFiles()">Upload</button>
+
+    <div *ngFor="let file of selectedFiles" class="file-progress">
+        <p>{{ file.name }} - {{ file.status }}</p>
+        <mat-progress-bar *ngIf="file.status === 'uploading'" mode="indeterminate">
+        </mat-progress-bar>
+    </div>
+</div>
