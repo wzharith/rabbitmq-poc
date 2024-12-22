@@ -6,6 +6,7 @@ import pika
 import uuid
 import os
 import json
+from fastapi.middleware.cors import CORSMiddleware
 
 # Database setup
 DATABASE_URL = "postgresql://harith:harith123@localhost/harith"
@@ -44,6 +45,19 @@ def publish_task(task_id: str, filename: str):
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:4200",  # Angular frontend
+    # Add other allowed origins as needed
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # List of allowed origins
+    allow_credentials=True,  # Allow cookies to be sent
+    allow_methods=["GET", "POST", "PUT", "DELETE"],  # Allow these HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 @app.post("/upload/")
@@ -86,7 +100,7 @@ async def get_all_files():
                 "task_id": task.id,
                 "filename": task.filename,
                 "status": task.status,
-                "result": task.result
+                "result": task.result,
             }
             for task in tasks
         ]

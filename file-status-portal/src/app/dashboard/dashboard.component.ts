@@ -1,59 +1,52 @@
-import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { catchError } from 'rxjs/operators';
-
-interface FileStatus {
-name: string;
-status: string;
-result: string;
-}
+import { FileStatusService, FileStatus } from '../services/file-status.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 @Component({
-  selector: 'app-dashboard',
-  templateUrl: './dashboard.component.html',
-  styleUrls: ['./dashboard.component.css'],
+selector: 'app-dashboard',
+templateUrl: './dashboard.component.html',
+styleUrls: ['./dashboard.component.css'],
 imports: [CommonModule, MatTableModule, MatProgressSpinnerModule],
 standalone: true,
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
 files: FileStatus[] = [];
 displayedColumns: string[] = ['name', 'status', 'result'];
-apiUrl = 'http://127.0.0.1:8000/status/';
 isLoading = false;
 error: string | null = null;
-  constructor(private http: HttpClient) {}
+private destroy$ = new Subject<void>();
 
-ngOnInit() {
-this.fetchFileStatuses();
+constructor(private fileStatusService: FileStatusService) {}
+
+ngOnInit(): void {
+    // Subscribe to service observables
+    this.fileStatusService.files$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(files => this.files = files);
+
+    this.fileStatusService.loading$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(loading => this.isLoading = loading);
+
+    this.fileStatusService.error$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(error => this.error = error);
+
+    // Start polling
+    this.fileStatusService.startPolling();
 }
-
 
 refresh(): void {
-this.fetchFileStatuses();
+    this.fileStatusService.stopPolling();
+    this.fileStatusService.startPolling();
 }
 
-fetchFileStatuses() {
-this.isLoading = true;
-this.error = null;
-
-this.http.get<FileStatus[]>('http://127.0.0.1:8000/files/')
-    .pipe(
-    catchError((error: HttpErrorResponse) => {
-        this.error = 'Failed to fetch file statuses. Please try again.';
-        console.error('Failed to fetch file statuses', error);
-        throw error;
-    })
-    )
-    .subscribe({
-    next: (data) => {
-        this.files = data;
-        this.isLoading = false;
-    },
-    error: () => {
-        this.isLoading = false;
-    }
-    });
+ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.fileStatusService.stopPolling();
 }
 }
